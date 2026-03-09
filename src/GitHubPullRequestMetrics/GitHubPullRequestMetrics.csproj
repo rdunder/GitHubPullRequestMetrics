@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\GraphQL\PullRequestDetails\" />
-    <Folder Include="Models\GraphQL\Search\" />
-  </ItemGroup>
-
 </Project>
