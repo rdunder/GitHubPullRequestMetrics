@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GitHubPullRequestMetrics.Configuration;
 
-internal class GitHubOptions
+public class GitHubOptions
 {
     public string Token { get; set; } = string.Empty;
 
