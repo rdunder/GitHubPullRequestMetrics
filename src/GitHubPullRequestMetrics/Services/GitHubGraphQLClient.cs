@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace GitHubPullRequestMetrics.Services;
 
-internal class GitHubGraphQLClient : IGitHubClient
+public class GitHubGraphQLClient : IGitHubClient
 {
     private readonly HttpClient _httpClient;
     private const string GitHubGraphQLEndpoint = "https://api.github.com/graphql";

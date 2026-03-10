@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GitHubPullRequestMetrics.Interfaces;
 
-internal interface IGitHubClient
+public interface IGitHubClient
 {
     /// <summary>
     /// Executes a GraphQL query and returns the deserialized response.
