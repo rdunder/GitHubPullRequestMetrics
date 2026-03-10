@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GitHubPullRequestMetrics.Models.GraphQL.Common;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,5 +15,5 @@ internal interface IGitHubClient
     /// <param name="variables">Optional variables for the query.</param>
     /// <returns>The deserialized response data.</returns>
     /// <exception cref="HttpRequestException">Thrown when the API request fails.</exception>
-    Task<T> ExecuteQueryAsync<T>(string query, object? variables = null);
+    Task<Result<T>> ExecuteQueryAsync<T>(string query, object? variables = null);
 }
