@@ -7,7 +7,7 @@ using GitHubPullRequestMetrics.Models.Metrics;
 
 namespace GitHubPullRequestMetrics.Services;
 
-public class PullrequestMetricsService(IGitHubClient client, GitHubOptions options) : IPullrequestMetricsService
+public class PullRequestMetricsService(IGitHubClient client, GitHubOptions options) : IPullRequestMetricsService
 {
     private readonly IGitHubClient _client = client;
     private readonly GitHubOptions _options = options;

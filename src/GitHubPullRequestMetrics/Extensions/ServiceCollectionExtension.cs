@@ -22,7 +22,7 @@ public static class ServiceCollectionExtension
         services.AddHttpClient("GitHub");
 
         services.AddSingleton<IGitHubClient, GitHubGraphQLClient>();
-        services.AddSingleton<IPullrequestMetricsService, PullrequestMetricsService>();
+        services.AddSingleton<IPullRequestMetricsService, PullRequestMetricsService>();
 
         return services;
     }

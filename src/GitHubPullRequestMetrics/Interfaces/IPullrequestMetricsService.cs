@@ -4,7 +4,7 @@ using GitHubPullRequestMetrics.Models.Metrics;
 
 namespace GitHubPullRequestMetrics.Interfaces;
 
-public interface IPullrequestMetricsService
+public interface IPullRequestMetricsService
 {
     /// <summary>
     /// Gets Pull Request metrics for a repository within a date range.
