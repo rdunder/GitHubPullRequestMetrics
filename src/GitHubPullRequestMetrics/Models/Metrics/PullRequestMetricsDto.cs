@@ -8,7 +8,7 @@ namespace GitHubPullRequestMetrics.Models.Metrics;
 /// Contains calculated metrics for a single Pull Request.
 /// Represents the time taken for various stages in the PR lifecycle.
 /// </summary>
-internal class PullRequestMetricsDto
+public class PullRequestMetricsDto
 {
     public int PullRequestNumber { get; set; }
     public string Author { get; set; } = string.Empty;
