@@ -143,12 +143,8 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
         .OrderBy(r => r.SubmittedAt)
         .ToList();
 
-        // === REVIEWS ===
-
-        // First review (any state)
         var firstReview = allReviews.FirstOrDefault();
 
-        // Count unique reviewers and find when minimum was reached
         var uniqueReviewers = new HashSet<string>();
         DateTime? minimumReviewersReachedAt = null;
 
@@ -159,7 +155,6 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             {
                 uniqueReviewers.Add(reviewerLogin);
 
-                // Check if we've reached the minimum threshold
                 if (minimumReviewersReachedAt == null &&
                     uniqueReviewers.Count >= _options.MinimumReviewers)
                 {
@@ -168,18 +163,13 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             }
         }
 
-        // === APPROVALS ===
-
-        // Get all approvals in chronological order
         var approvals = allReviews
             .Where(r => r.State == "APPROVED")
             .OrderBy(r => r.SubmittedAt)
             .ToList();
 
-        // First approval
         var firstApproval = approvals.FirstOrDefault();
 
-        // Count unique approvers and find when minimum was reached
         var uniqueApprovers = new HashSet<string>();
         DateTime? minimumApprovalsReachedAt = null;
 
@@ -190,7 +180,6 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             {
                 uniqueApprovers.Add(approverLogin);
 
-                // Check if we've reached the minimum threshold
                 if (minimumApprovalsReachedAt == null &&
                     uniqueApprovers.Count >= _options.MinimumApprovals)
                 {
@@ -205,17 +194,14 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             Author = author,
             CreatedAt = pullRequest.CreatedAt,
 
-            // Reviews
             FirstReviewAt = firstReview?.SubmittedAt,
             MinimumReviewersReachedAt = minimumReviewersReachedAt,
             TotalReviewersCount = uniqueReviewers.Count,
 
-            // Approvals
             FirstApprovalAt = firstApproval?.SubmittedAt,
             MinimumApprovalsReachedAt = minimumApprovalsReachedAt,
             TotalApprovalsCount = uniqueApprovers.Count,
 
-            // Merge
             MergedAt = pullRequest.MergedAt
         };
     }
@@ -230,7 +216,6 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             $"created:{from:yyyy-MM-dd}..{to:yyyy-MM-dd}"
         };
 
-        // Add team member filters if specified
         if (_options.TeamMembers != null && _options.TeamMembers.Count > 0)
         {
             foreach (var member in _options.TeamMembers)
