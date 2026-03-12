@@ -4,13 +4,29 @@ using GitHubPullRequestMetrics.Models.GraphQL.Common;
 using GitHubPullRequestMetrics.Models.GraphQL.PullRequestDetails;
 using GitHubPullRequestMetrics.Models.GraphQL.Search;
 using GitHubPullRequestMetrics.Models.Metrics;
+using Microsoft.Extensions.Diagnostics.Metrics;
 
 namespace GitHubPullRequestMetrics.Services;
 
-public class PullRequestMetricsService(IGitHubClient client, GitHubOptions options) : IPullRequestMetricsService
+public class PullRequestMetricsService(
+    IGitHubClient client, 
+    GitHubOptions options, 
+    IMetricsAggregationService aggregationService) 
+    : IPullRequestMetricsService
 {
-    private readonly IGitHubClient _client = client;
-    private readonly GitHubOptions _options = options;
+    public async Task<Result<MetricsSummaryDto>> GetMetricsSummaryAsync(DateTime from, DateTime to, string? owner, string? repository)
+    {
+        var metricsResult = await GetMetricsAsync(from, to, owner, repository);
+
+        if (!metricsResult.IsSuccess)
+        {
+            return Result<MetricsSummaryDto>.Failure(metricsResult.Error!);
+        }
+
+        var summary = aggregationService.AggregateMetrics(metricsResult.Value!);
+
+        return Result<MetricsSummaryDto>.Success(summary);
+    }
 
     public async Task<Result<IEnumerable<PullRequestMetricsDto>>> GetMetricsAsync(
         DateTime from,
@@ -18,8 +34,8 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
         string? owner = null,
         string? repository = null)
     {
-        var actualOwner = owner ?? _options.DefaultOwner;
-        var actualRepo = repository ?? _options.DefaultRepository;
+        var actualOwner = owner ?? options.DefaultOwner;
+        var actualRepo = repository ?? options.DefaultRepository;
 
         var searchResult = await SearchPullRequestsAsync(actualOwner, actualRepo, from, to);
         if (!searchResult.IsSuccess)
@@ -84,7 +100,7 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
         while (hasNextPage)
         {
             var variables = new { query = queryString, cursor };
-            var result = await _client.ExecuteQueryAsync<SearchResponseData>(query, variables);
+            var result = await client.ExecuteQueryAsync<SearchResponseData>(query, variables);
 
             if (!result.IsSuccess)
             {
@@ -123,7 +139,7 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             }";
 
         var variables = new { owner, repo = repository, number = prNumber };
-        var result = await _client.ExecuteQueryAsync<PullRequestDetailsResponseData>(query, variables);
+        var result = await client.ExecuteQueryAsync<PullRequestDetailsResponseData>(query, variables);
 
         if (!result.IsSuccess)
         {
@@ -156,7 +172,7 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
                 uniqueReviewers.Add(reviewerLogin);
 
                 if (minimumReviewersReachedAt == null &&
-                    uniqueReviewers.Count >= _options.MinimumReviewers)
+                    uniqueReviewers.Count >= options.MinimumReviewers)
                 {
                     minimumReviewersReachedAt = review.SubmittedAt;
                 }
@@ -181,7 +197,7 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
                 uniqueApprovers.Add(approverLogin);
 
                 if (minimumApprovalsReachedAt == null &&
-                    uniqueApprovers.Count >= _options.MinimumApprovals)
+                    uniqueApprovers.Count >= options.MinimumApprovals)
                 {
                     minimumApprovalsReachedAt = approval.SubmittedAt;
                 }
@@ -216,14 +232,14 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             $"created:{from:yyyy-MM-dd}..{to:yyyy-MM-dd}"
         };
 
-        if (_options.TeamMembers != null && _options.TeamMembers.Count > 0)
+        if (options.TeamMembers != null && options.TeamMembers.Count > 0)
         {
-            foreach (var member in _options.TeamMembers)
+            foreach (var member in options.TeamMembers)
             {
                 queryParts.Add($"author:{member}");
             }
         }
 
         return string.Join(" ", queryParts);
-    }
+    }    
 }
