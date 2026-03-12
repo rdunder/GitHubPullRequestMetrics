@@ -19,6 +19,9 @@ public class GitHubOptions
     /// </summary>
     public List<string>? TeamMembers { get; set; }
 
+    public int MinimumReviewers { get; set; } = 1;
+    public int MinimumApprovals { get; set; } = 1;
+
     public void Validate()
     {
         if (string.IsNullOrWhiteSpace(Token)) 
@@ -29,5 +32,11 @@ public class GitHubOptions
 
         if (string.IsNullOrWhiteSpace(DefaultRepository))
             throw new InvalidOperationException("Repository is required. Please configure GithubOptions.DefaultRepository");
+
+        if (MinimumReviewers < 1)
+            throw new InvalidOperationException("MinimumReviewers must be at least 1.");
+
+        if (MinimumApprovals < 1)
+            throw new InvalidOperationException("MinimumApprovals must be at least 1.");
     }
 }
