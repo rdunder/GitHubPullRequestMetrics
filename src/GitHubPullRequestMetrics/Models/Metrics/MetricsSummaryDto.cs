@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace GitHubPullRequestMetrics.Models.Metrics;
 
-internal class MetricsSummaryDto
+public class MetricsSummaryDto
 {
-    IReadOnlyList<PullRequestMetricsDto> PullRequests { get; set; } = [];
+    public IReadOnlyList<PullRequestMetricsDto> PullRequests { get; set; } = [];
 
 
     public int TotalPRs { get; set; }
