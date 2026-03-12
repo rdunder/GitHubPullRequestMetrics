@@ -12,6 +12,12 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
     private readonly IGitHubClient _client = client;
     private readonly GitHubOptions _options = options;
 
+
+    Task<Result<MetricsSummaryDto>> IPullRequestMetricsService.GetMetricsSummaryAsync(DateTime from, DateTime to, string? owner, string? repository)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Result<IEnumerable<PullRequestMetricsDto>>> GetMetricsAsync(
         DateTime from,
         DateTime to,
@@ -225,5 +231,5 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
         }
 
         return string.Join(" ", queryParts);
-    }
+    }    
 }
