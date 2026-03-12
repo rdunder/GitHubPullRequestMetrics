@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GitHubPullRequestMetrics.Models.GraphQL.Common;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,9 +16,7 @@ internal class ReviewNode
     /// </summary>
     public string State { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Timestamp when the review was submitted.
-    /// Null if the review has not been submitted yet.
-    /// </summary>
     public DateTime? SubmittedAt { get; set; }
+
+    public Author? Author { get; set; }
 }
