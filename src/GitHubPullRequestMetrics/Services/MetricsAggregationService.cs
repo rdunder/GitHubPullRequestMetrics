@@ -1,10 +1,13 @@
-﻿using GitHubPullRequestMetrics.Interfaces;
+﻿using GitHubPullRequestMetrics.Configuration;
+using GitHubPullRequestMetrics.Interfaces;
 using GitHubPullRequestMetrics.Models.Metrics;
 
 namespace GitHubPullRequestMetrics.Services;
 
-public class MetricsAggregationService : IMetricsAggregationService
+public class MetricsAggregationService(GitHubOptions options) : IMetricsAggregationService
 {
+    private readonly GitHubOptions _options = options;
+
     public MetricsSummaryDto AggregateMetrics(IEnumerable<PullRequestMetricsDto> metrics)
     {
         var metricsList = metrics.ToList();

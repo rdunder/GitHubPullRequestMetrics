@@ -2,9 +2,6 @@
 using GitHubPullRequestMetrics.Interfaces;
 using GitHubPullRequestMetrics.Services;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GitHubPullRequestMetrics.Extensions;
 
@@ -22,6 +19,7 @@ public static class ServiceCollectionExtension
         services.AddHttpClient("GitHub");
 
         services.AddSingleton<IGitHubClient, GitHubGraphQLClient>();
+        services.AddSingleton<IMetricsAggregationService, MetricsAggregationService>();
         services.AddSingleton<IPullRequestMetricsService, PullRequestMetricsService>();
 
         return services;
