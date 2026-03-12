@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GitHubPullRequestMetrics.Models.GraphQL.Search;
+namespace GitHubPullRequestMetrics.Models.GraphQL.Common;
 
 internal class Author
 {
