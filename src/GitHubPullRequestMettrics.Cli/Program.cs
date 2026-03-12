@@ -28,7 +28,7 @@ var metricsService = app.Services.GetRequiredService<IPullRequestMetricsService>
 
 // Set date range (last month)
 var to = DateTime.Now;
-var from = to.AddMonths(-1);
+var from = to.AddDays(-3);
 
 Console.WriteLine($"Fetching PR metrics from {from:yyyy-MM-dd} to {to:yyyy-MM-dd}...\n");
 

@@ -158,7 +158,7 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
             Author = author,
             CreatedAt = pullRequest.CreatedAt,
             FirstReviewAt = firstReview?.SubmittedAt,
-            FirstApprovalAt = approval?.SubmittedAt,
+            ApprovedAt = approval?.SubmittedAt,
             MergedAt = pullRequest.MergedAt
         };
     }

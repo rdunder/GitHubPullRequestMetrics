@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GitHubPullRequestMetrics.Models.GraphQL.Common;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
