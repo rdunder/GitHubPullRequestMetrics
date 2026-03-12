@@ -14,16 +14,37 @@ public class PullRequestMetricsDto
     public string Author { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime? FirstReviewAt { get; set; }
-    public DateTime? ApprovedAt { get; set; }
+    public DateTime? MinimumReviewersReachedAt { get; set; }
+    public int TotalReviewersCount { get; set; }
+    public DateTime? FirstApprovalAt { get; set; }
+    public DateTime? MinimumApprovalsReachedAt { get; set; }
+    public int TotalApprovalsCount { get; set; }
     public DateTime? MergedAt { get; set; }
+
+    
+    // ___ Calculated Properties ___
+
     public TimeSpan? TimeToFirstReview =>
         FirstReviewAt.HasValue ? FirstReviewAt.Value - CreatedAt : null;
-    public TimeSpan? TimeToApproval =>
-        ApprovedAt.HasValue ? ApprovedAt.Value - CreatedAt : null;
+
+    public TimeSpan? TimeToMinimumReviewers =>
+        MinimumReviewersReachedAt.HasValue
+            ? MinimumReviewersReachedAt.Value - CreatedAt
+            : null;
+
+    public TimeSpan? TimeToFirstApproval =>
+        FirstApprovalAt.HasValue ? FirstApprovalAt.Value - CreatedAt : null;
+
+    public TimeSpan? TimeToMinimumApprovals =>
+        MinimumApprovalsReachedAt.HasValue
+            ? MinimumApprovalsReachedAt.Value - CreatedAt
+            : null;
+
     public TimeSpan? TimeToMerge =>
         MergedAt.HasValue ? MergedAt.Value - CreatedAt : null;
+
     public TimeSpan? ReviewToApprovalTime =>
-        FirstReviewAt.HasValue && ApprovedAt.HasValue
-            ? ApprovedAt.Value - FirstReviewAt.Value
+        FirstReviewAt.HasValue && FirstApprovalAt.HasValue
+            ? FirstApprovalAt.Value - FirstReviewAt.Value
             : null;
 }

@@ -106,7 +106,6 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
         string repository,
         int prNumber)
     {
-
         var query = @"
             query ($owner: String!, $repo: String!, $number: Int!) {
                 repository(owner: $owner, name: $repo) {
@@ -117,9 +116,6 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
                             nodes {
                                 state
                                 submittedAt
-                                author {
-                                    login
-                                }
                             }
                         }
                     }
@@ -142,23 +138,84 @@ public class PullRequestMetricsService(IGitHubClient client, GitHubOptions optio
         string author,
         PullRequest pullRequest)
     {
-        var firstReview = pullRequest.Reviews.Nodes
-            .Where(r => r.SubmittedAt != null)
-            .OrderBy(r => r.SubmittedAt)
-            .FirstOrDefault();
+        var allReviews = pullRequest.Reviews.Nodes
+        .Where(r => r.SubmittedAt != null)
+        .OrderBy(r => r.SubmittedAt)
+        .ToList();
 
-        var approval = pullRequest.Reviews.Nodes
-            .Where(r => r.State == "APPROVED" && r.SubmittedAt != null)
+        // === REVIEWS ===
+
+        // First review (any state)
+        var firstReview = allReviews.FirstOrDefault();
+
+        // Count unique reviewers and find when minimum was reached
+        var uniqueReviewers = new HashSet<string>();
+        DateTime? minimumReviewersReachedAt = null;
+
+        foreach (var review in allReviews)
+        {
+            var reviewerLogin = review.Author?.Login;
+            if (!string.IsNullOrEmpty(reviewerLogin))
+            {
+                uniqueReviewers.Add(reviewerLogin);
+
+                // Check if we've reached the minimum threshold
+                if (minimumReviewersReachedAt == null &&
+                    uniqueReviewers.Count >= _options.MinimumReviewers)
+                {
+                    minimumReviewersReachedAt = review.SubmittedAt;
+                }
+            }
+        }
+
+        // === APPROVALS ===
+
+        // Get all approvals in chronological order
+        var approvals = allReviews
+            .Where(r => r.State == "APPROVED")
             .OrderBy(r => r.SubmittedAt)
-            .FirstOrDefault();
+            .ToList();
+
+        // First approval
+        var firstApproval = approvals.FirstOrDefault();
+
+        // Count unique approvers and find when minimum was reached
+        var uniqueApprovers = new HashSet<string>();
+        DateTime? minimumApprovalsReachedAt = null;
+
+        foreach (var approval in approvals)
+        {
+            var approverLogin = approval.Author?.Login;
+            if (!string.IsNullOrEmpty(approverLogin))
+            {
+                uniqueApprovers.Add(approverLogin);
+
+                // Check if we've reached the minimum threshold
+                if (minimumApprovalsReachedAt == null &&
+                    uniqueApprovers.Count >= _options.MinimumApprovals)
+                {
+                    minimumApprovalsReachedAt = approval.SubmittedAt;
+                }
+            }
+        }
 
         return new PullRequestMetricsDto
         {
             PullRequestNumber = prNumber,
             Author = author,
             CreatedAt = pullRequest.CreatedAt,
+
+            // Reviews
             FirstReviewAt = firstReview?.SubmittedAt,
-            ApprovedAt = approval?.SubmittedAt,
+            MinimumReviewersReachedAt = minimumReviewersReachedAt,
+            TotalReviewersCount = uniqueReviewers.Count,
+
+            // Approvals
+            FirstApprovalAt = firstApproval?.SubmittedAt,
+            MinimumApprovalsReachedAt = minimumApprovalsReachedAt,
+            TotalApprovalsCount = uniqueApprovers.Count,
+
+            // Merge
             MergedAt = pullRequest.MergedAt
         };
     }

@@ -67,10 +67,10 @@ foreach (var metric in metrics.OrderBy(m => m.PullRequestNumber))
         Console.WriteLine($"  First Review:     No reviews");
     }
 
-    if (metric.ApprovedAt.HasValue)
+    if (metric.FirstApprovalAt.HasValue)
     {
-        Console.WriteLine($"  Approved:         {metric.ApprovedAt:yyyy-MM-dd HH:mm} " +
-                         $"({FormatTimeSpan(metric.TimeToApproval)})");
+        Console.WriteLine($"  Approved:         {metric.FirstApprovalAt:yyyy-MM-dd HH:mm} " +
+                         $"({FormatTimeSpan(metric.TimeToFirstApproval)})");
     }
     else
     {
@@ -89,7 +89,7 @@ Console.WriteLine("\n" + "=".PadRight(100, '='));
 Console.WriteLine("\n📊 SUMMARY");
 Console.WriteLine($"Total PRs:                {metrics.Count}");
 Console.WriteLine($"PRs with reviews:         {metrics.Count(m => m.FirstReviewAt.HasValue)}");
-Console.WriteLine($"PRs approved:             {metrics.Count(m => m.ApprovedAt.HasValue)}");
+Console.WriteLine($"PRs approved:             {metrics.Count(m => m.FirstApprovalAt.HasValue)}");
 
 var avgTimeToFirstReview = metrics
     .Where(m => m.TimeToFirstReview.HasValue)
