@@ -4,7 +4,6 @@ using GitHubPullRequestMetrics.Models.GraphQL.Common;
 using GitHubPullRequestMetrics.Models.GraphQL.PullRequestDetails;
 using GitHubPullRequestMetrics.Models.GraphQL.Search;
 using GitHubPullRequestMetrics.Models.Metrics;
-using Microsoft.Extensions.Diagnostics.Metrics;
 
 namespace GitHubPullRequestMetrics.Services;
 
