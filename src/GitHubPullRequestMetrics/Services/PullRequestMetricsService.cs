@@ -131,6 +131,9 @@ public class PullRequestMetricsService(
                             nodes {
                                 state
                                 submittedAt
+                                author {
+                                    login
+                                }
                             }
                         }
                     }
