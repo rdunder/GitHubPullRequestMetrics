@@ -1,224 +1,157 @@
 # GitHub Pull Request Metrics
 
-A .NET library for fetching and analyzing Pull Request metrics from GitHub repositories. Built to help teams gain insights into their PR review process during sprint planning and retrospectives.
+A .NET library and CLI tool for analyzing Pull Request metrics from GitHub repositories.
 
-## 📊 Features
+## Features
 
-- **Fetch PR metrics** for any GitHub repository within a date range
-- **Calculate key metrics:**
-  - Time to first review
-  - Time to approval
-  - Time to merge
-  - Review turnaround time
-- **Filter by team members** to focus on specific contributors
-- **Flexible integration** - use as a library in CLI, API, or desktop applications
-- **Built with .NET 10** and modern best practices
+- 📊 **Comprehensive metrics**: Time to first review, approvals, and merge
+- 📈 **Statistical analysis**: Both average and median values
+- 👥 **Team filtering**: Track specific team members
+- ⚙️ **Configurable thresholds**: Minimum reviewers and approvals
+- 🎨 **Beautiful CLI**: Colored tables with Spectre.Console
+- 📦 **Reusable library**: Integrate into your own tools
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
 - .NET 10 SDK
-- GitHub Personal Access Token (PAT) with permissions:
+- GitHub Personal Access Token with:
   - Pull Requests: Read
   - Contents: Read
 
+[Create token here](https://github.com/settings/tokens?type=beta)
+
 ### Installation
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/GithubPullRequestMetrics.git
 cd GithubPullRequestMetrics
-
-# Build the solution
-dotnet build
-
-# Run the CLI example
-cd src/GithubPullRequestMetrics.Cli
-dotnet run
 ```
 
-### Creating a GitHub Token
+### Configuration
+Add your github token as an enviroment variable: GITHUB__TOKEN
 
-1. Go to [GitHub Settings → Tokens](https://github.com/settings/tokens?type=beta)
-2. Click "Generate new token (fine-grained)"
-3. Set permissions:
-   - Repository access: Public Repositories (or specific repos)
-   - Pull requests: Read-only
-   - Contents: Read-only
-4. Copy the generated token
-
-## 📖 Usage
-
-### CLI Application
-
-Configure `appsettings.json`:
+Create `GithubPullRequestMetrics.Cli/appsettings.json`:
 ```json
 {
   "GitHub": {
-    "Token": "ghp_your_token_here",
-    "DefaultOwner": "dotnet",
-    "DefaultRepository": "runtime",
-    "TeamMembers": ["alice", "bob", "charlie"]
+    "Token": "The safest way is to add token as enviroment variable, but it can be added here as well",
+    "DefaultOwner": "owner",
+    "DefaultRepository": "repo",
+    "TeamMembers": ["alice", "bob"],
+    "MinimumReviewers": 2,
+    "MinimumApprovals": 2
   }
 }
 ```
 
-Run:
+### Run CLI
+If you create executable from CLI you run with ```pr-metrics``` 
+
 ```bash
+cd GithubPullRequestMetrics.Cli
+
+# See all commands and arguments
 dotnet run
+
+# Last 30 days (default)
+dotnet run -- analyze
+
+# Last 7 days
+dotnet run -- analyze --days 7
+
+# Specific date range
+dotnet run -- analyze --from 2026-02-01 --to 2026-02-28
+
+# With individual PR details
+dotnet run -- analyze --days 14 --show-individual
 ```
 
-### As a Library
+## Using as a Library
 
-**1. Add NuGet reference:**
+### Install
 ```bash
-dotnet add reference path/to/GithubPullRequestMetrics.Core
+dotnet add reference GithubPullRequestMetrics/GithubPullRequestMetrics
 ```
 
-**2. Register services:**
+### Example
 ```csharp
 using GithubPullRequestMetrics.Core.Extensions;
+using GithubPullRequestMetrics.Core.Interfaces;
+
+var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddGitHubPullRequestMetrics(options =>
 {
-    options.Token = "ghp_your_token";
+    options.Token = "SAFETY FIRST - Enviroment Variable";
     options.DefaultOwner = "my-org";
     options.DefaultRepository = "my-repo";
-    options.TeamMembers = new List<string> { "alice", "bob" };
+    options.MinimumReviewers = 2;
+    options.MinimumApprovals = 2;
 });
-```
 
-**3. Use the service:**
-```csharp
-using GithubPullRequestMetrics.Core.Interfaces;
+var app = builder.Build();
+var service = app.Services.GetRequiredService();
 
-var result = await metricsService.GetMetricsAsync(
-    from: DateTime.Now.AddMonths(-1),
-    to: DateTime.Now
+var result = await service.GetMetricsSummaryAsync(
+    DateTime.Now.AddMonths(-1),
+    DateTime.Now
 );
 
 if (result.IsSuccess)
 {
-    foreach (var metric in result.Value)
-    {
-        Console.WriteLine($"PR #{metric.PullRequestNumber} by {metric.Author}");
-        Console.WriteLine($"  Time to merge: {metric.TimeToMerge?.TotalDays:F1} days");
-    }
-}
-else
-{
-    Console.WriteLine($"Error: {result.Error}");
+    var summary = result.Value;
+    Console.WriteLine($"Total PRs: {summary.TotalPRs}");
+    Console.WriteLine($"Avg time to merge: {summary.AverageTimeToMerge}");
+    Console.WriteLine($"Median time to merge: {summary.MedianTimeToMerge}");
 }
 ```
 
-## 🏗️ Architecture
+## Metrics Provided
+
+| Metric | Description |
+|--------|-------------|
+| **Time to First Review** | Duration from PR creation to first review |
+| **Time to Minimum Reviewers** | Duration until required number of reviewers |
+| **Time to First Approval** | Duration from creation to first approval |
+| **Time to Minimum Approvals** | Duration until required number of approvals |
+| **Time to Merge** | Total duration from creation to merge |
+
+All metrics include both **average** and **median** values.
+
+## Project Structure
 ```
 GithubPullRequestMetrics/
-├─ Models/
-│   ├─ GraphQL/          # GitHub API response models
-│   └─ Metrics/          # Calculated metrics DTOs
-├─ Services/
-│   ├─ GitHubGraphQLClient.cs
-│   └─ PullRequestMetricsService.cs
-├─ Interfaces/
-│   └─ IPullRequestMetricsService.cs
-│   └─ IGitHubClient.cs
-├─ Configuration/
-│   └─ GitHubOptions.cs
-└─ Extensions/
-    └─ ServiceCollectionExtensions.cs
+├─ src/
+│   └─ GithubPullRequestMetrics/        # Reusable library
+├─ GithubPullRequestMetrics.Cli/        # CLI tool
+└─ tests/
+    └─ GithubPullRequestMetricsTests/
 ```
 
-## 📦 NuGet Packages Used
+## Configuration Options
 
-- `GraphQL.Client` - GraphQL client for .NET
-- `GraphQL.Client.Serializer.SystemTextJson` - JSON serialization
-- `Microsoft.Extensions.DependencyInjection` - Dependency injection
-- `Microsoft.Extensions.Http` - HttpClientFactory support
+| Option | Required | Description |
+|--------|----------|-------------|
+| `Token` | ✅ | GitHub Personal Access Token |
+| `DefaultOwner` | ✅ | Repository owner/organization |
+| `DefaultRepository` | ✅ | Repository name |
+| `TeamMembers` | ❌ | Filter PRs by these GitHub usernames |
+| `MinimumReviewers` | ❌ | Required unique reviewers (default: 1) |
+| `MinimumApprovals` | ❌ | Required approvals (default: 1) |
 
-## 🔧 Configuration Options
 
-| Option | Description | Required |
-|--------|-------------|----------|
-| `Token` | GitHub Personal Access Token | ✅ Yes |
-| `DefaultOwner` | Repository owner/organization | ✅ Yes |
-| `DefaultRepository` | Repository name | ✅ Yes |
-| `TeamMembers` | List of GitHub usernames to filter | ❌ No |
+## Technology Stack
 
-## 📊 Metrics Provided
+- .NET 10
+- GraphQL.Client
+- Spectre.Console
+- xUnit
 
-Each `PullRequestMetricsDto` contains:
+## License
 
-- `PullRequestNumber` - PR identifier
-- `Author` - GitHub username of PR creator
-- `CreatedAt` - When the PR was created
-- `FirstReviewAt` - Timestamp of first review
-- `ApprovedAt` - When the PR was approved
-- `MergedAt` - When the PR was merged
-- `TimeToFirstReview` - Duration from creation to first review
-- `TimeToApproval` - Duration from creation to approval
-- `TimeToMerge` - Total duration from creation to merge
-- `ReviewToApprovalTime` - Duration from first review to approval
+MIT
 
-## 🧪 Testing
+## Author
 
-Run tests:
-```bash
-dotnet test
-```
-
-## 🛣️ Roadmap
-
-- [ ] Add unit tests
-- [ ] Support for multiple review cycles
-- [ ] Export metrics to CSV/JSON
-- [ ] Dashboard visualization
-- [ ] Support for GitLab and Azure DevOps
-- [ ] Caching layer for faster repeated queries
-
-## 📝 Example Output
-```
-Fetching PR metrics from 2025-02-10 to 2025-03-10...
-
-Found 47 merged PRs
-
-====================================================================================================
-
-PR #12345 by @johndoe
-  Created:          2025-02-15 10:30
-  First Review:     2025-02-15 14:20 (3.8 hours)
-  Approved:         2025-02-16 09:15 (22.8 hours)
-  Merged:           2025-02-16 10:00 (23.5 hours)
-
-====================================================================================================
-
-📊 SUMMARY
-Total PRs:                47
-PRs with reviews:         45
-PRs approved:             43
-
-Avg time to first review: 4.2 hours
-Avg time to merge:        1.3 days
-```
-
-## 🤝 Contributing
-
-This project is part of an educational thesis work. Contributions and feedback are welcome!
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 👨‍💻 Author
-
-Created as part of a thesis project at EC Utbildning, Gothenburg
-
-## 🙏 Acknowledgments
-
-- GitHub GraphQL API documentation
-- .NET community for excellent tools and libraries
-- [Any other acknowledgments]
-
----
-
-**Built with ❤️ using .NET 10**
+Created as part of a thesis project.
