@@ -1,9 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/GitHubPullRequestMetrics/GitHubPullRequestMetrics.csproj" Id="585f85eb-1955-4ffe-9ffe-0959aa069b89" />
-    <Project Path="src/GitHubPullRequestMettrics.Cli/GitHubPullRequestMettrics.Cli.csproj" Id="c2486093-c2d0-4968-95a0-d85cfc0886da" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/GitHubPullRequestMetrics.Tests/GitHubPullRequestMetrics.Tests.csproj" Id="9d7b47a8-d1f2-4f9d-a1c8-fd76a148fef5" />
   </Folder>
+  <Project Path="GitHubPullRequestMetrics.Cli/GitHubPullRequestMetrics.Cli.csproj" Id="dc13b0eb-fe03-465b-896c-364065998e1e" />
 </Solution>
