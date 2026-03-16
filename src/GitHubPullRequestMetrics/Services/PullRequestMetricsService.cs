@@ -157,7 +157,7 @@ public class PullRequestMetricsService(
         PullRequest pullRequest)
     {
         var allReviews = pullRequest.Reviews.Nodes
-        .Where(r => r.SubmittedAt != null)
+        .Where(r => r.SubmittedAt != null && r.Author?.Login != author)
         .OrderBy(r => r.SubmittedAt)
         .ToList();
 
