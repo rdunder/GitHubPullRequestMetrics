@@ -71,7 +71,7 @@ internal class TableOutputFormatter : IOutputFormatter
             .AddColumn(new TableColumn("[bold]Time to 1st Review[/]").RightAligned())
             .AddColumn(new TableColumn("[bold]Time to Merge[/]").RightAligned());
 
-        foreach (var metric in metrics.OrderBy(m => m.PullRequestNumber))
+        foreach (var metric in metrics.OrderByDescending(m => m.TimeToMerge))
         {
             table.AddRow(
                 $"#{metric.PullRequestNumber}",
@@ -103,12 +103,12 @@ internal class TableOutputFormatter : IOutputFormatter
         var ts = timeSpan.Value;
 
         if (ts.TotalDays >= 1)
-            return $"[green]{ts.TotalDays:F1}d[/]";
+            return $"[yellow]{ts.TotalDays:F1}d[/]";
 
         if (ts.TotalHours >= 1)
-            return $"[yellow]{ts.TotalHours:F1}h[/]";
+            return $"[cyan]{ts.TotalHours:F1}h[/]";
 
-        return $"[cyan]{ts.TotalMinutes:F0}m[/]";
+        return $"[green]{ts.TotalMinutes:F0}m[/]";
     }
 
     private static string EscapeMarkup(string text)
