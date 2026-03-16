@@ -1,9 +1,10 @@
-﻿using GitHubPullRequestMetrics.Models.Metrics;
+﻿using GitHubPullRequestMetrics.Configuration;
+using GitHubPullRequestMetrics.Models.Metrics;
 using Spectre.Console;
 
 namespace GitHubPullRequestMetrics.Cli.Services;
 
-internal class TableOutputFormatter : IOutputFormatter
+internal class TableOutputFormatter(GitHubOptions options) : IOutputFormatter
 {
     public void DisplaySummary(MetricsSummaryDto summary)
     {
@@ -57,6 +58,8 @@ internal class TableOutputFormatter : IOutputFormatter
 
     public void DisplayIndividualMetrics(IEnumerable<PullRequestMetricsDto> metrics)
     {
+        metrics = metrics.ToList();
+        
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[bold cyan]📋 INDIVIDUAL PR METRICS[/]");
         AnsiConsole.WriteLine();
@@ -65,21 +68,19 @@ internal class TableOutputFormatter : IOutputFormatter
             .Border(TableBorder.Rounded)
             .BorderColor(Color.Yellow)
             .AddColumn(new TableColumn("[bold]PR #[/]").RightAligned())
-            .AddColumn(new TableColumn("[bold]Author[/]").LeftAligned())
-            .AddColumn(new TableColumn("[bold]Reviewers[/]").Centered())
-            .AddColumn(new TableColumn("[bold]Approvals[/]").Centered())
+            .AddColumn(new TableColumn("[bold]Title[/]"))
             .AddColumn(new TableColumn("[bold]Time to 1st Review[/]").RightAligned())
             .AddColumn(new TableColumn("[bold]Time to Merge[/]").RightAligned());
+        
+        
 
         foreach (var metric in metrics.OrderByDescending(m => m.TimeToMerge))
         {
             table.AddRow(
-                $"#{metric.PullRequestNumber}",
-                EscapeMarkup(metric.Author),
-                metric.TotalReviewersCount.ToString(),
-                metric.TotalApprovalsCount.ToString(),
-                FormatTimeSpan(metric.TimeToFirstReview),
-                FormatTimeSpan(metric.TimeToMerge)
+                new Text($"# {metric.PullRequestNumber}"),
+                new Markup(FormatPrLink(metric)),
+                new Markup(FormatTimeSpan(metric.TimeToFirstReview)),
+                new Markup(FormatTimeSpan(metric.TimeToMerge))
             );
         }
 
@@ -93,6 +94,19 @@ internal class TableOutputFormatter : IOutputFormatter
             FormatTimeSpan(average),
             FormatTimeSpan(median)
         );
+    }
+
+    private string FormatPrLink(PullRequestMetricsDto metric)
+    {
+        var title = Markup.Escape(metric.Title);
+        
+        if (title.Length > 35)
+            title = title[..35] + "...";
+
+        return
+            $"[blue underline link=https://github.com/" +
+            $"{options.DefaultOwner}/{options.DefaultRepository}/pull/" +
+            $"{metric.PullRequestNumber}]{title}[/]";
     }
 
     private static string FormatTimeSpan(TimeSpan? timeSpan)
