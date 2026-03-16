@@ -125,6 +125,7 @@ public class PullRequestMetricsService(
             query ($owner: String!, $repo: String!, $number: Int!) {
                 repository(owner: $owner, name: $repo) {
                     pullRequest(number: $number) {
+                        title
                         createdAt
                         mergedAt
                         reviews(first: 100) {
@@ -209,6 +210,7 @@ public class PullRequestMetricsService(
         return new PullRequestMetricsDto
         {
             PullRequestNumber = prNumber,
+            Title = pullRequest.Title,
             Author = author,
             CreatedAt = pullRequest.CreatedAt,
 
