@@ -5,6 +5,7 @@ using GitHubPullRequestMetrics.GraphQL.Models.Search;
 using GitHubPullRequestMetrics.Interfaces;
 using GitHubPullRequestMetrics.Models;
 using GitHubPullRequestMetrics.Services;
+using GraphQL;
 using Moq;
 
 namespace GitHubPullRequestMetrics.Tests;
@@ -33,20 +34,27 @@ public class PullRequestMetricsServiceTests
         if (searchResponse != null)
         {
             mock.Setup(c => c.ExecuteQueryAsync<SearchResponseData>(
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
+                    It.IsAny<GraphQLRequest>()))
                 .ReturnsAsync(Result<SearchResponseData>.Success(searchResponse));
         }
 
         if (detailsResponse != null)
         {
             mock.Setup(c => c.ExecuteQueryAsync<PullRequestDetailsResponseData>(
-                    It.IsAny<string>(),
-                    It.IsAny<object>()))
+                    It.IsAny<GraphQLRequest>()))
                 .ReturnsAsync(Result<PullRequestDetailsResponseData>.Success(detailsResponse));
         }
 
         return mock;
+    }
+    
+    private static IMetricsAggregationService CreatePassThroughAggregationService()
+    {
+        var mock = new Mock<IMetricsAggregationService>();
+        mock.Setup(s => s.AggregateMetrics(It.IsAny<IEnumerable<PullRequestMetricsDto>>()))
+            .Returns<IEnumerable<PullRequestMetricsDto>>(metrics =>
+                new MetricsSummaryDto { PullRequests = metrics.ToList().AsReadOnly() });
+        return mock.Object;
     }
 
     private static SearchResponseData CreateSearchResponse(params PullRequestNode[] nodes)
@@ -104,17 +112,18 @@ public class PullRequestMetricsServiceTests
             }
         };
     }
+    
 
     private static PullRequestMetricsService CreateService(
     GitHubOptions options,
     IGitHubClient client)
     {
-        var aggregation = Mock.Of<IMetricsAggregationService>();
+        var aggregationService = CreatePassThroughAggregationService();
 
         return new PullRequestMetricsService(
             client,
             options,
-            aggregation);
+            aggregationService);
     }
 
     private static ReviewNode CreateReview(
@@ -443,8 +452,7 @@ public class PullRequestMetricsServiceTests
         var mockClient = new Mock<IGitHubClient>();
 
         mockClient.Setup(c => c.ExecuteQueryAsync<SearchResponseData>(
-                It.IsAny<string>(),
-                It.IsAny<object>()))
+                It.IsAny<GraphQLRequest>()))
             .ReturnsAsync(Result<SearchResponseData>.Failure("GraphQL error"));
 
         var service = CreateService(options, mockClient.Object);
@@ -473,14 +481,12 @@ public class PullRequestMetricsServiceTests
         var mockClient = new Mock<IGitHubClient>();
 
         mockClient.Setup(c => c.ExecuteQueryAsync<SearchResponseData>(
-                It.IsAny<string>(),
-                It.IsAny<object>()))
+                It.IsAny<GraphQLRequest>()))
             .ReturnsAsync(Result<SearchResponseData>.Success(searchResponse));
 
         var callCount = 0;
         mockClient.Setup(c => c.ExecuteQueryAsync<PullRequestDetailsResponseData>(
-                It.IsAny<string>(),
-                It.IsAny<object>()))
+                It.IsAny<GraphQLRequest>()))
             .ReturnsAsync(() =>
             {
                 callCount++;
