@@ -1,4 +1,5 @@
 ﻿using GitHubPullRequestMetrics.Models;
+using GraphQL;
 
 namespace GitHubPullRequestMetrics.Interfaces;
 
@@ -8,9 +9,8 @@ public interface IGitHubClient
     /// Executes a GraphQL query and returns the deserialized response.
     /// </summary>
     /// <typeparam name="T">The type to deserialize the response data into.</typeparam>
-    /// <param name="query">The GraphQL query string.</param>
-    /// <param name="variables">Optional variables for the query.</param>
+    /// <param name="request">The GraphQL request containing the query and any associated variables.</param>
     /// <returns>The deserialized response data.</returns>
     /// <exception cref="HttpRequestException">Thrown when the API request fails.</exception>
-    Task<Result<T>> ExecuteQueryAsync<T>(string query, object? variables = null);
+    Task<Result<T>> ExecuteQueryAsync<T>(GraphQLRequest request);
 }

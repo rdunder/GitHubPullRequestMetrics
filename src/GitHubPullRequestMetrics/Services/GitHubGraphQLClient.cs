@@ -17,8 +17,6 @@ public class GitHubGraphQLClient : IGitHubClient
 
     public GitHubGraphQLClient(IHttpClientFactory httpClientFactory, GitHubOptions options)
     {
-        options.Validate();
-
         var httpClient = httpClientFactory.CreateClient("GitHub");
         httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", options.Token);
@@ -35,16 +33,10 @@ public class GitHubGraphQLClient : IGitHubClient
             httpClient);
     }
 
-    public async Task<Result<T>> ExecuteQueryAsync<T>(string query, object? variables = null)
+    public async Task<Result<T>> ExecuteQueryAsync<T>(GraphQLRequest request)
     {
         try
         {
-            var request = new GraphQLRequest
-            {
-                Query = query,
-                Variables = variables
-            };
-
             var response = await _graphQLClient.SendQueryAsync<T>(request);
 
             if (response.Errors != null && response.Errors.Length > 0)
@@ -72,10 +64,5 @@ public class GitHubGraphQLClient : IGitHubClient
         {
             return Result<T>.Failure($"Unexpected error: {ex.Message}");
         }
-    }
-
-    public void Dispose()
-    {
-        _graphQLClient?.Dispose();
     }
 }

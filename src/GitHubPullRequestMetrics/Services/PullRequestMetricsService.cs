@@ -1,4 +1,5 @@
 ﻿using GitHubPullRequestMetrics.Configuration;
+using GitHubPullRequestMetrics.GraphQL.Helpers;
 using GitHubPullRequestMetrics.GraphQL.Models.PullRequestDetails;
 using GitHubPullRequestMetrics.GraphQL.Models.Search;
 using GitHubPullRequestMetrics.Interfaces;
@@ -63,36 +64,14 @@ public class PullRequestMetricsService(
         DateTime to)
     {
         var queryString = BuildSearchQuery(from, to);
-
-        var query = @"
-            query ($query: String!, $cursor: String) {
-                search(type: ISSUE, query: $query, first: 100, after: $cursor) {
-                    nodes {
-                        ... on PullRequest {
-                            number
-                            title
-                            createdAt
-                            mergedAt
-                            author {
-                                login
-                            }
-                        }
-                    }
-                    pageInfo {
-                        hasNextPage
-                        endCursor
-                    }
-                }
-            }";
-
         var allNodes = new List<PullRequestNode>();
         string? cursor = null;
         bool hasNextPage = true;
 
         while (hasNextPage)
         {
-            var variables = new { query = queryString, cursor };
-            var result = await client.ExecuteQueryAsync<SearchResponseData>(query, variables);
+            var request = QueryBuilder.GetPullRequestSearchQuery(queryString, cursor);
+            var result = await client.ExecuteQueryAsync<SearchResponseData>(request);
 
             if (!result.IsSuccess)
             {
@@ -112,28 +91,12 @@ public class PullRequestMetricsService(
     private async Task<Result<PullRequest>> GetPullRequestDetailsAsync(
         int prNumber)
     {
-        var query = @"
-            query ($owner: String!, $repo: String!, $number: Int!) {
-                repository(owner: $owner, name: $repo) {
-                    pullRequest(number: $number) {
-                        title
-                        createdAt
-                        mergedAt
-                        reviews(first: 100) {
-                            nodes {
-                                state
-                                submittedAt
-                                author {
-                                    login
-                                }
-                            }
-                        }
-                    }
-                }
-            }";
-
-        var variables = new { owner = options.Owner, repo = options.Repository, number = prNumber };
-        var result = await client.ExecuteQueryAsync<PullRequestDetailsResponseData>(query, variables);
+        var request = QueryBuilder.GetPullRequestDetailsQuery(
+            owner: options.Owner, 
+            repo: options.Repository, 
+            number: prNumber);
+        
+        var result = await client.ExecuteQueryAsync<PullRequestDetailsResponseData>(request);
 
         if (!result.IsSuccess)
         {
