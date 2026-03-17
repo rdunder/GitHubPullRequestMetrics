@@ -12,8 +12,8 @@ public class MetricsAggregationServiceTests
         new(new GitHubOptions
         {
             Token = "token",
-            DefaultOwner = "owner",
-            DefaultRepository = "repo",
+            Owner = "owner",
+            Repository = "repo",
             MinimumReviewers = 2,
             MinimumApprovals = 2
         });

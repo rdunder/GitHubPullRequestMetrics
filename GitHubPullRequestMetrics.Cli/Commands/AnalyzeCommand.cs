@@ -26,7 +26,7 @@ internal class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
 
         DisplayHeader(from, to);
 
-        var result = await FetchMetricsWithProgress(from, to, settings.Owner, settings.Repository);
+        var result = await FetchMetricsWithProgress(from, to);
 
         if (!result.IsSuccess)
         {
@@ -69,9 +69,7 @@ internal class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
 
     private async Task<Result<MetricsSummaryDto>> FetchMetricsWithProgress(
         DateTime from,
-        DateTime to,
-        string? owner,
-        string? repository)
+        DateTime to)
     {
         return await AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
@@ -81,11 +79,7 @@ internal class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
                 ctx.Status("Searching for merged PRs...");
                 await Task.Delay(100);
 
-                var result = await _metricsService.GetMetricsSummaryAsync(
-                    from,
-                    to,
-                    owner,
-                    repository);
+                var result = await _metricsService.GetPullRequestMetricsAsync(from, to);
 
                 if (result.IsSuccess)
                 {

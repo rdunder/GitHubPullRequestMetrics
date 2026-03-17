@@ -13,9 +13,9 @@ public class PullRequestMetricsService(
     IMetricsAggregationService aggregationService) 
     : IPullRequestMetricsService
 {
-    public async Task<Result<MetricsSummaryDto>> GetMetricsSummaryAsync(DateTime from, DateTime to, string? owner, string? repository)
+    public async Task<Result<MetricsSummaryDto>> GetPullRequestMetricsAsync(DateTime from, DateTime to)
     {
-        var metricsResult = await GetMetricsAsync(from, to, owner, repository);
+        var metricsResult = await GetMetricsAsync(from, to);
 
         if (!metricsResult.IsSuccess)
         {
@@ -27,16 +27,12 @@ public class PullRequestMetricsService(
         return Result<MetricsSummaryDto>.Success(summary);
     }
 
-    public async Task<Result<IEnumerable<PullRequestMetricsDto>>> GetMetricsAsync(
+    private async Task<Result<IEnumerable<PullRequestMetricsDto>>> GetMetricsAsync(
         DateTime from,
-        DateTime to,
-        string? owner = null,
-        string? repository = null)
+        DateTime to)
     {
-        var actualOwner = owner ?? options.DefaultOwner;
-        var actualRepo = repository ?? options.DefaultRepository;
 
-        var searchResult = await SearchPullRequestsAsync(actualOwner, actualRepo, from, to);
+        var searchResult = await SearchPullRequestsAsync(from, to);
         if (!searchResult.IsSuccess)
         {
             return Result<IEnumerable<PullRequestMetricsDto>>.Failure(searchResult.Error!);
@@ -46,7 +42,7 @@ public class PullRequestMetricsService(
 
         foreach (var prNode in searchResult.Value!)
         {
-            var detailsResult = await GetPullRequestDetailsAsync(actualOwner, actualRepo, prNode.Number);
+            var detailsResult = await GetPullRequestDetailsAsync(prNode.Number);
 
             if (!detailsResult.IsSuccess)
             {
@@ -64,12 +60,10 @@ public class PullRequestMetricsService(
     }
 
     private async Task<Result<IEnumerable<PullRequestNode>>> SearchPullRequestsAsync(
-        string owner,
-        string repository,
         DateTime from,
         DateTime to)
     {
-        var queryString = BuildSearchQuery(owner, repository, from, to);
+        var queryString = BuildSearchQuery(from, to);
 
         var query = @"
             query ($query: String!, $cursor: String) {
@@ -117,8 +111,6 @@ public class PullRequestMetricsService(
     }
 
     private async Task<Result<PullRequest>> GetPullRequestDetailsAsync(
-        string owner,
-        string repository,
         int prNumber)
     {
         var query = @"
@@ -141,7 +133,7 @@ public class PullRequestMetricsService(
                 }
             }";
 
-        var variables = new { owner, repo = repository, number = prNumber };
+        var variables = new { owner = options.Owner, repo = options.Repository, number = prNumber };
         var result = await client.ExecuteQueryAsync<PullRequestDetailsResponseData>(query, variables);
 
         if (!result.IsSuccess)
@@ -226,11 +218,11 @@ public class PullRequestMetricsService(
         };
     }
 
-    private string BuildSearchQuery(string owner, string repository, DateTime from, DateTime to)
+    private string BuildSearchQuery(DateTime from, DateTime to)
     {
         var queryParts = new List<string>
         {
-            $"repo:{owner}/{repository}",
+            $"repo:{options.Owner}/{options.Repository}",
             "is:pr",
             "is:merged",
             $"created:{from:yyyy-MM-dd}..{to:yyyy-MM-dd}"

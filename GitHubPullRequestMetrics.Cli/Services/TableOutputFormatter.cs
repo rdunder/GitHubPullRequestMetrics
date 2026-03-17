@@ -105,7 +105,7 @@ internal class TableOutputFormatter(GitHubOptions options) : IOutputFormatter
 
         return
             $"[blue underline link=https://github.com/" +
-            $"{options.DefaultOwner}/{options.DefaultRepository}/pull/" +
+            $"{options.Owner}/{options.Repository}/pull/" +
             $"{metric.PullRequestNumber}]{title}[/]";
     }
 
