@@ -1,5 +1,5 @@
 ﻿
-namespace GitHubPullRequestMetrics.Models.Metrics;
+namespace GitHubPullRequestMetrics.Models;
 
 public class MetricsSummaryDto
 {

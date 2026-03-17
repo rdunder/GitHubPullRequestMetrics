@@ -1,7 +1,6 @@
 ﻿using GitHubPullRequestMetrics.Cli.Services;
 using GitHubPullRequestMetrics.Interfaces;
-using GitHubPullRequestMetrics.Models.GraphQL.Common;
-using GitHubPullRequestMetrics.Models.Metrics;
+using GitHubPullRequestMetrics.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 

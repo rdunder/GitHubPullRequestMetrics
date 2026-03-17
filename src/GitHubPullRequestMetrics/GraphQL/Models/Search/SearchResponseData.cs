@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GitHubPullRequestMetrics.Models.GraphQL.Search;
+﻿namespace GitHubPullRequestMetrics.GraphQL.Models.Search;
 
 /// <summary>
 /// Root response object for GitHub GraphQL search queries.

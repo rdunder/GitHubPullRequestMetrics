@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GitHubPullRequestMetrics.Models.Metrics;
+namespace GitHubPullRequestMetrics.Models;
 
 /// <summary>
 /// Contains calculated metrics for a single Pull Request.

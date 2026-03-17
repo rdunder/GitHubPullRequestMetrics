@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GitHubPullRequestMetrics.Models.GraphQL.PullRequestDetails;
+﻿namespace GitHubPullRequestMetrics.GraphQL.Models.PullRequestDetails;
 
 internal class PullRequest
 {

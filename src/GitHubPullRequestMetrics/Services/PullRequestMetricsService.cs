@@ -1,9 +1,8 @@
 ﻿using GitHubPullRequestMetrics.Configuration;
+using GitHubPullRequestMetrics.GraphQL.Models.PullRequestDetails;
+using GitHubPullRequestMetrics.GraphQL.Models.Search;
 using GitHubPullRequestMetrics.Interfaces;
-using GitHubPullRequestMetrics.Models.GraphQL.Common;
-using GitHubPullRequestMetrics.Models.GraphQL.PullRequestDetails;
-using GitHubPullRequestMetrics.Models.GraphQL.Search;
-using GitHubPullRequestMetrics.Models.Metrics;
+using GitHubPullRequestMetrics.Models;
 
 namespace GitHubPullRequestMetrics.Services;
 

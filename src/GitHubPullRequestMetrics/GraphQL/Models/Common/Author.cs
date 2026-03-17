@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GitHubPullRequestMetrics.Models.GraphQL.Common;
+﻿namespace GitHubPullRequestMetrics.GraphQL.Models.Common;
 
 internal class Author
 {

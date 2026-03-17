@@ -1,5 +1,5 @@
 ﻿using GitHubPullRequestMetrics.Configuration;
-using GitHubPullRequestMetrics.Models.Metrics;
+using GitHubPullRequestMetrics.Models;
 using Spectre.Console;
 
 namespace GitHubPullRequestMetrics.Cli.Services;

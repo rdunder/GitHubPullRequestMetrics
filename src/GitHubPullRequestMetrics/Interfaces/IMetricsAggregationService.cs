@@ -1,7 +1,4 @@
-﻿using GitHubPullRequestMetrics.Models.Metrics;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using GitHubPullRequestMetrics.Models;
 
 namespace GitHubPullRequestMetrics.Interfaces;
 

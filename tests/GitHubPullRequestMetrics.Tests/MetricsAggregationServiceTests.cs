@@ -1,5 +1,4 @@
-﻿using GitHubPullRequestMetrics.Configuration;
-using GitHubPullRequestMetrics.Models.Metrics;
+﻿using GitHubPullRequestMetrics.Models;
 using GitHubPullRequestMetrics.Services;
 
 namespace GitHubPullRequestMetrics.Tests;
@@ -8,15 +7,7 @@ public class MetricsAggregationServiceTests
 {
     // ---------- helpers ----------
 
-    private static MetricsAggregationService CreateService() =>
-        new(new GitHubOptions
-        {
-            Token = "token",
-            Owner = "owner",
-            Repository = "repo",
-            MinimumReviewers = 2,
-            MinimumApprovals = 2
-        });
+    private static MetricsAggregationService CreateService() => new();
 
     private static PullRequestMetricsDto CreateMetric(
         double? firstReview = null,

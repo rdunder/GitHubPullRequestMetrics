@@ -1,9 +1,6 @@
-﻿using GitHubPullRequestMetrics.Models.GraphQL.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using GitHubPullRequestMetrics.GraphQL.Models.Common;
 
-namespace GitHubPullRequestMetrics.Models.GraphQL.PullRequestDetails;
+namespace GitHubPullRequestMetrics.GraphQL.Models.PullRequestDetails;
 
 /// <summary>
 /// Represents a single code review on a Pull Request.

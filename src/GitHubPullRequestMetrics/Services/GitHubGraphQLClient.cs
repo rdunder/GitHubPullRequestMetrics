@@ -1,12 +1,12 @@
-﻿using GitHubPullRequestMetrics.Configuration;
+﻿using System.Net.Http.Headers;
+
+using GitHubPullRequestMetrics.Configuration;
 using GitHubPullRequestMetrics.Interfaces;
-using GitHubPullRequestMetrics.Models.GraphQL.Common;
+using GitHubPullRequestMetrics.Models;
+
 using GraphQL;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 
 namespace GitHubPullRequestMetrics.Services;
 

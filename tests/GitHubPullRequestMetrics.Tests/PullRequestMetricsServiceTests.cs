@@ -1,8 +1,9 @@
 ﻿using GitHubPullRequestMetrics.Configuration;
+using GitHubPullRequestMetrics.GraphQL.Models.Common;
+using GitHubPullRequestMetrics.GraphQL.Models.PullRequestDetails;
+using GitHubPullRequestMetrics.GraphQL.Models.Search;
 using GitHubPullRequestMetrics.Interfaces;
-using GitHubPullRequestMetrics.Models.GraphQL.Common;
-using GitHubPullRequestMetrics.Models.GraphQL.PullRequestDetails;
-using GitHubPullRequestMetrics.Models.GraphQL.Search;
+using GitHubPullRequestMetrics.Models;
 using GitHubPullRequestMetrics.Services;
 using Moq;
 
@@ -17,8 +18,8 @@ public class PullRequestMetricsServiceTests
         new()
         {
             Token = "test-token",
-            DefaultOwner = "test-owner",
-            DefaultRepository = "test-repo",
+            Owner = "test-owner",
+            Repository = "test-repo",
             MinimumReviewers = minReviewers,
             MinimumApprovals = minApprovals
         };
@@ -155,13 +156,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2026, 1, 1),
             new DateTime(2026, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.Single();
+        var metrics = result.Value!.PullRequests.Single();
 
         if (thresholdReached)
             Assert.NotNull(metrics.MinimumReviewersReachedAt);
@@ -196,13 +197,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.Single();
+        var metrics = result.Value!.PullRequests.Single();
 
         Assert.Equal(1, metrics.TotalReviewersCount);
     }
@@ -237,11 +238,11 @@ public class PullRequestMetricsServiceTests
 
         var service = CreateService(options, mockClient.Object);
 
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
-        var metrics = result.Value!.Single();
+        var metrics = result.Value!.PullRequests.Single();
 
         if (thresholdReached)
             Assert.NotNull(metrics.MinimumApprovalsReachedAt);
@@ -274,13 +275,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.Single();
+        var metrics = result.Value!.PullRequests.Single();
         Assert.Equal(0, metrics.TotalApprovalsCount);
         Assert.Null(metrics.FirstApprovalAt);
         Assert.Null(metrics.MinimumApprovalsReachedAt);
@@ -313,13 +314,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.Single();
+        var metrics = result.Value!.PullRequests.Single();
         Assert.Equal(baseTime.AddHours(2), metrics.FirstReviewAt);
     }
 
@@ -348,13 +349,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.Single();
+        var metrics = result.Value!.PullRequests.Single();
         Assert.Equal(baseTime.AddHours(3), metrics.FirstApprovalAt);
     }
 
@@ -380,13 +381,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.Single();
+        var metrics = result.Value!.PullRequests.Single();
         Assert.Equal(0, metrics.TotalReviewersCount);
         Assert.Null(metrics.FirstReviewAt);
         Assert.Null(metrics.MinimumReviewersReachedAt);
@@ -419,13 +420,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.ToList();
+        var metrics = result.Value!.PullRequests.ToList();
         Assert.Equal(3, metrics.Count);
         Assert.Contains(metrics, m => m.PullRequestNumber == 123);
         Assert.Contains(metrics, m => m.PullRequestNumber == 456);
@@ -449,7 +450,7 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
@@ -493,13 +494,13 @@ public class PullRequestMetricsServiceTests
         var service = CreateService(options, mockClient.Object);
 
         // Act
-        var result = await service.GetMetricsAsync(
+        var result = await service.GetPullRequestMetricsAsync(
             new DateTime(2025, 1, 1),
             new DateTime(2025, 1, 31));
 
         // Assert
         Assert.True(result.IsSuccess);
-        var metrics = result.Value!.ToList();
+        var metrics = result.Value!.PullRequests.ToList();
         Assert.Single(metrics);
         Assert.Equal(456, metrics[0].PullRequestNumber);
     }

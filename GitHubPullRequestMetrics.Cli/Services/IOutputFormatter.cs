@@ -1,4 +1,4 @@
-﻿using GitHubPullRequestMetrics.Models.Metrics;
+﻿using GitHubPullRequestMetrics.Models;
 
 namespace GitHubPullRequestMetrics.Cli.Services;
 
