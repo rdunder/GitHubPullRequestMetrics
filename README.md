@@ -36,8 +36,8 @@ Create `GithubPullRequestMetrics.Cli/appsettings.json`:
 {
   "GitHub": {
     "Token": "The safest way is to add token as enviroment variable, but it can be added here as well",
-    "DefaultOwner": "owner",
-    "DefaultRepository": "repo",
+    "Owner": "owner",
+    "Repository": "repo",
     "TeamMembers": ["alice", "bob"],
     "MinimumReviewers": 2,
     "MinimumApprovals": 2
@@ -63,7 +63,7 @@ dotnet run -- analyze --days 7
 # Specific date range
 dotnet run -- analyze --from 2026-02-01 --to 2026-02-28
 
-# With individual PR details
+# With individual PR details table (sorted by time-to-merge, with clickable GitHub links)
 dotnet run -- analyze --days 14 --show-individual
 ```
 
@@ -84,16 +84,16 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddGitHubPullRequestMetrics(options =>
 {
     options.Token = "SAFETY FIRST - Enviroment Variable";
-    options.DefaultOwner = "my-org";
-    options.DefaultRepository = "my-repo";
+    options.Owner = "my-org";
+    options.Repository = "my-repo";
     options.MinimumReviewers = 2;
     options.MinimumApprovals = 2;
 });
 
 var app = builder.Build();
-var service = app.Services.GetRequiredService();
+var service = app.Services.GetRequiredService<IPullRequestMetricsService>();
 
-var result = await service.GetMetricsSummaryAsync(
+var result = await service.GetPullRequestMetricsAsync(
     DateTime.Now.AddMonths(-1),
     DateTime.Now
 );
@@ -134,8 +134,8 @@ GithubPullRequestMetrics/
 | Option | Required | Description |
 |--------|----------|-------------|
 | `Token` | ✅ | GitHub Personal Access Token |
-| `DefaultOwner` | ✅ | Repository owner/organization |
-| `DefaultRepository` | ✅ | Repository name |
+| `Owner` | ✅ | Repository owner/organization |
+| `Repository` | ✅ | Repository name |
 | `TeamMembers` | ❌ | Filter PRs by these GitHub usernames |
 | `MinimumReviewers` | ❌ | Required unique reviewers (default: 1) |
 | `MinimumApprovals` | ❌ | Required approvals (default: 1) |
