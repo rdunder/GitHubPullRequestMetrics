@@ -24,7 +24,7 @@ A .NET library and CLI tool for analyzing Pull Request metrics from GitHub repos
 
 ### Installation
 ```bash
-git clone https://github.com/yourusername/GithubPullRequestMetrics.git
+git clone https://github.com/rdunder/GithubPullRequestMetrics.git
 cd GithubPullRequestMetrics
 ```
 
@@ -70,14 +70,21 @@ dotnet run -- analyze --days 14 --show-individual
 ## Using as a Library
 
 ### Install
+
+Add a reference to the library project:
 ```bash
-dotnet add reference GithubPullRequestMetrics/GithubPullRequestMetrics
+dotnet add reference path/to/GitHubPullRequestMetrics/GitHubPullRequestMetrics.csproj
+```
+
+Your host project also needs:
+```bash
+dotnet add package Microsoft.Extensions.Hosting
 ```
 
 ### Example
 ```csharp
-using GithubPullRequestMetrics.Core.Extensions;
-using GithubPullRequestMetrics.Core.Interfaces;
+using GitHubPullRequestMetrics.Extensions;
+using GitHubPullRequestMetrics.Interfaces;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -94,7 +101,7 @@ var app = builder.Build();
 var service = app.Services.GetRequiredService<IPullRequestMetricsService>();
 
 var result = await service.GetPullRequestMetricsAsync(
-    DateTime.Now.AddMonths(-1),
+    DateTime.Now.AddDays(-3),
     DateTime.Now
 );
 
@@ -104,6 +111,14 @@ if (result.IsSuccess)
     Console.WriteLine($"Total PRs: {summary.TotalPRs}");
     Console.WriteLine($"Avg time to merge: {summary.AverageTimeToMerge}");
     Console.WriteLine($"Median time to merge: {summary.MedianTimeToMerge}");
+
+    foreach (var pr in summary.PullRequests)
+    {
+        Console.WriteLine($"PR #{pr.PullRequestNumber} - {pr.Title} by {pr.Author}");
+        Console.WriteLine($"  Time to first review:   {pr.TimeToFirstReview?.TotalHours:F1}h");
+        Console.WriteLine($"  Time to first approval: {pr.TimeToFirstApproval?.TotalHours:F1}h");
+        Console.WriteLine($"  Time to merge:          {pr.TimeToMerge?.TotalHours:F1}h");
+    }
 }
 ```
 
@@ -127,6 +142,30 @@ GithubPullRequestMetrics/
 ├─ GithubPullRequestMetrics.Cli/        # CLI tool
 └─ tests/
     └─ GithubPullRequestMetricsTests/
+```
+
+## Library Structure
+```
+src/GitHubPullRequestMetrics/
+├─ Configuration/
+│   └─ GitHubOptions.cs                 # Token, Owner, Repository, thresholds
+├─ Extensions/
+│   └─ ServiceCollectionExtension.cs    # AddGitHubPullRequestMetrics() DI registration
+├─ GraphQL/
+│   ├─ Helpers/QueryBuilder.cs          # Builds search and detail GraphQL requests
+│   └─ Models/                          # GraphQL response deserialization types
+├─ Interfaces/
+│   ├─ IGitHubClient.cs
+│   ├─ IMetricsAggregationService.cs
+│   └─ IPullRequestMetricsService.cs    # Primary public interface for consumers
+├─ Models/
+│   ├─ PullRequestMetricsDto.cs         # Per-PR data with calculated TimeSpan properties
+│   ├─ MetricsSummaryDto.cs             # Aggregated averages, medians, and PR list
+│   └─ Result.cs                        # Result<T> for error propagation without exceptions
+└─ Services/
+    ├─ GitHubGraphQLClient.cs           # HTTP + GraphQL execution
+    ├─ MetricsAggregationService.cs     # Computes averages and medians across PRs
+    └─ PullRequestMetricsService.cs     # Orchestrates fetch + metric calculation
 ```
 
 ## Configuration Options
