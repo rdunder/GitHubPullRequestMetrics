@@ -139,7 +139,8 @@ All metrics include both **average** and **median** values.
 GithubPullRequestMetrics/
 ├─ src/
 │   └─ GithubPullRequestMetrics/        # Reusable library
-├─ GithubPullRequestMetrics.Cli/        # CLI tool
+├─ GithubPullRequestMetrics.Cli/        # CLI tool (Spectre.Console)
+├─ MinimalExampleCli/                   # Minimal example of using the library directly
 └─ tests/
     └─ GithubPullRequestMetricsTests/
 ```
