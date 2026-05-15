@@ -422,4 +422,4 @@ appsettings.json
 !appsettings.example.json
 
 *.idea
-CLAUDE.md
+CLAUDE.*
