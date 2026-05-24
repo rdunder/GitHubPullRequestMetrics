@@ -30,11 +30,11 @@ public class Program
         {
             config.SetApplicationName("pr-metrics");
 
-            config.AddCommand<AnalyzeCommand>("analyze");
-
-            config.AddExample("analyze", "--days", "7");
-            config.AddExample("analyze", "--from", "2026-01-01", "--to", "2026-01-31");
-            config.AddExample("analyze", "--days", "14", "--show-individual");
+            config.AddCommand<AnalyzeCommand>("analyze")
+                .WithDescription("Analyze PR metrics")
+                .WithExample("analyze", "--days", "7")
+                .WithExample("analyze", "--from", "2026-01-01", "--to", "2026-01-31")
+                .WithExample("analyze", "--days", "14", "--show-individual");
         });
 
         return await app.RunAsync(args);

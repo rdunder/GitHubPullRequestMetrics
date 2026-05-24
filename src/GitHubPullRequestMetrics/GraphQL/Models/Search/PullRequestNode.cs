@@ -1,9 +1,6 @@
-﻿using GitHubPullRequestMetrics.Models.GraphQL.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using GitHubPullRequestMetrics.GraphQL.Models.Common;
 
-namespace GitHubPullRequestMetrics.Models.GraphQL.Search;
+namespace GitHubPullRequestMetrics.GraphQL.Models.Search;
 
 /// <summary>
 /// Represents a single Pull Request node returned from a GitHub search query.

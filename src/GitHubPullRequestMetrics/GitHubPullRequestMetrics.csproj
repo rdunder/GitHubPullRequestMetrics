@@ -17,4 +17,8 @@
 	<InternalsVisibleTo Include="GitHubPullRequestMetrics.Tests"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="GraphQL\Models\" />
+  </ItemGroup>
+
 </Project>

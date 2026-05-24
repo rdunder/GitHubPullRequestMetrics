@@ -1,9 +1,10 @@
-﻿using GitHubPullRequestMetrics.Models.Metrics;
+﻿using GitHubPullRequestMetrics.Configuration;
+using GitHubPullRequestMetrics.Models;
 using Spectre.Console;
 
 namespace GitHubPullRequestMetrics.Cli.Services;
 
-internal class TableOutputFormatter : IOutputFormatter
+internal class TableOutputFormatter(GitHubOptions options) : IOutputFormatter
 {
     public void DisplaySummary(MetricsSummaryDto summary)
     {
@@ -57,6 +58,8 @@ internal class TableOutputFormatter : IOutputFormatter
 
     public void DisplayIndividualMetrics(IEnumerable<PullRequestMetricsDto> metrics)
     {
+        metrics = metrics.ToList();
+        
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[bold cyan]📋 INDIVIDUAL PR METRICS[/]");
         AnsiConsole.WriteLine();
@@ -65,21 +68,19 @@ internal class TableOutputFormatter : IOutputFormatter
             .Border(TableBorder.Rounded)
             .BorderColor(Color.Yellow)
             .AddColumn(new TableColumn("[bold]PR #[/]").RightAligned())
-            .AddColumn(new TableColumn("[bold]Author[/]").LeftAligned())
-            .AddColumn(new TableColumn("[bold]Reviewers[/]").Centered())
-            .AddColumn(new TableColumn("[bold]Approvals[/]").Centered())
+            .AddColumn(new TableColumn("[bold]Title[/]"))
             .AddColumn(new TableColumn("[bold]Time to 1st Review[/]").RightAligned())
             .AddColumn(new TableColumn("[bold]Time to Merge[/]").RightAligned());
+        
+        
 
-        foreach (var metric in metrics.OrderBy(m => m.PullRequestNumber))
+        foreach (var metric in metrics.OrderByDescending(m => m.TimeToMerge))
         {
             table.AddRow(
-                $"#{metric.PullRequestNumber}",
-                EscapeMarkup(metric.Author),
-                metric.TotalReviewersCount.ToString(),
-                metric.TotalApprovalsCount.ToString(),
-                FormatTimeSpan(metric.TimeToFirstReview),
-                FormatTimeSpan(metric.TimeToMerge)
+                new Text($"# {metric.PullRequestNumber}"),
+                new Markup(FormatPrLink(metric)),
+                new Markup(FormatTimeSpan(metric.TimeToFirstReview)),
+                new Markup(FormatTimeSpan(metric.TimeToMerge))
             );
         }
 
@@ -95,6 +96,19 @@ internal class TableOutputFormatter : IOutputFormatter
         );
     }
 
+    private string FormatPrLink(PullRequestMetricsDto metric)
+    {
+        var title = Markup.Escape(metric.Title);
+        
+        if (title.Length > 35)
+            title = title[..35] + "...";
+
+        return
+            $"[blue underline link=https://github.com/" +
+            $"{options.Owner}/{options.Repository}/pull/" +
+            $"{metric.PullRequestNumber}]{title}[/]";
+    }
+
     private static string FormatTimeSpan(TimeSpan? timeSpan)
     {
         if (!timeSpan.HasValue)
@@ -103,12 +117,12 @@ internal class TableOutputFormatter : IOutputFormatter
         var ts = timeSpan.Value;
 
         if (ts.TotalDays >= 1)
-            return $"[green]{ts.TotalDays:F1}d[/]";
+            return $"[yellow]{ts.TotalDays:F1}d[/]";
 
         if (ts.TotalHours >= 1)
-            return $"[yellow]{ts.TotalHours:F1}h[/]";
+            return $"[cyan]{ts.TotalHours:F1}h[/]";
 
-        return $"[cyan]{ts.TotalMinutes:F0}m[/]";
+        return $"[green]{ts.TotalMinutes:F0}m[/]";
     }
 
     private static string EscapeMarkup(string text)

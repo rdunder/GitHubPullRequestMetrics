@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GitHubPullRequestMetrics.Models.GraphQL.Common;
+namespace GitHubPullRequestMetrics.Models;
 
 public class Result<T>
 {

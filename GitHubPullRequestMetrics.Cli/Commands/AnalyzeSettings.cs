@@ -22,14 +22,6 @@ public class AnalyzeSettings : CommandSettings
     [Description("Number of days back from today (default: 30)")]
     public int? Days { get; set; }
 
-    [CommandOption("--owner")]
-    [Description("Repository owner (overrides appsettings.json)")]
-    public string? Owner { get; set; }
-
-    [CommandOption("--repo")]
-    [Description("Repository name (overrides appsettings.json)")]
-    public string? Repository { get; set; }
-
     [CommandOption("--show-individual")]
     [Description("Show individual PR details (not just summary)")]
     [DefaultValue(false)]

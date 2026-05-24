@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace GitHubPullRequestMetrics.Configuration;
 
 public class GitHubOptions
 {
     public string Token { get; set; } = string.Empty;
 
-    public string DefaultOwner { get; set; } = string.Empty;
+    public string Owner { get; set; } = string.Empty;
 
-    public string DefaultRepository { get; set; } = string.Empty;
+    public string Repository { get; set; } = string.Empty;
 
     /// <summary>
     /// List of GitHub usernames representing team members.
@@ -27,11 +24,11 @@ public class GitHubOptions
         if (string.IsNullOrWhiteSpace(Token)) 
             throw new InvalidOperationException("GitHub Token is required. Please configure GitHubOptions.Token.");
 
-        if (string.IsNullOrWhiteSpace(DefaultOwner)) 
-            throw new InvalidOperationException("Repository Owner is required. Please configure GitHubOptions.DefaultOwner");
+        if (string.IsNullOrWhiteSpace(Owner)) 
+            throw new InvalidOperationException("Repository Owner is required. Please configure GitHubOptions.Owner");
 
-        if (string.IsNullOrWhiteSpace(DefaultRepository))
-            throw new InvalidOperationException("Repository is required. Please configure GithubOptions.DefaultRepository");
+        if (string.IsNullOrWhiteSpace(Repository))
+            throw new InvalidOperationException("Repository is required. Please configure GithubOptions.Repository");
 
         if (MinimumReviewers < 1)
             throw new InvalidOperationException("MinimumReviewers must be at least 1.");

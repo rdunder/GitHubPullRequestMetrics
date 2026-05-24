@@ -1,10 +1,6 @@
-﻿using GitHubPullRequestMetrics.Models.GraphQL.Common;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
+﻿using GitHubPullRequestMetrics.GraphQL.Models.Common;
 
-namespace GitHubPullRequestMetrics.Models.GraphQL.Search;
+namespace GitHubPullRequestMetrics.GraphQL.Models.Search;
 
 /// <summary>
 /// Represents the connection structure returned by GitHub's search query.
