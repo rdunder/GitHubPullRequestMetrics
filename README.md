@@ -85,14 +85,17 @@ dotnet add package Microsoft.Extensions.Hosting
 ```csharp
 using GitHubPullRequestMetrics.Extensions;
 using GitHubPullRequestMetrics.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddGitHubPullRequestMetrics(options =>
 {
-    options.Token = "SAFETY FIRST - Enviroment Variable";
-    options.Owner = "my-org";
-    options.Repository = "my-repo";
+    options.Token = Environment.GetEnvironmentVariable("GITHUB__TOKEN")
+        ?? "Add Token here if environment as a last resort"
+    options.Owner = "dotnet";
+    options.Repository = "runtime";
     options.MinimumReviewers = 2;
     options.MinimumApprovals = 2;
 });

@@ -6,5 +6,4 @@
     <Project Path="tests/GitHubPullRequestMetrics.Tests/GitHubPullRequestMetrics.Tests.csproj" Id="9d7b47a8-d1f2-4f9d-a1c8-fd76a148fef5" />
   </Folder>
   <Project Path="GitHubPullRequestMetrics.Cli/GitHubPullRequestMetrics.Cli.csproj" Id="dc13b0eb-fe03-465b-896c-364065998e1e" />
-  <Project Path="MinimalExampleCli\MinimalExampleCli.csproj" />
 </Solution>
